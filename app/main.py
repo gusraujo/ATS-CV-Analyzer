@@ -1,12 +1,20 @@
-# app.py
-from openai_client import analyze_cv
-from prompts import cv_analysis_prompt
+from openai_client import extract_cv_to_json
 from pdf_reader import read_pdf
+from validators.cv_validator import validate_cv
 
-cv_text = read_pdf("examples/cv.pdf")
+def main():
+    resume_text = read_pdf("examples/cv.pdf")
 
-prompt = cv_analysis_prompt(cv_text)
-analysis = analyze_cv(prompt)
+    cv_json = extract_cv_to_json(resume_text)
 
-print("\n=== ANÁLISE DO CURRÍCULO ===\n")
-print(analysis)
+    cv = validate_cv(cv_json)
+
+    print("===== VALIDATED CV OBJECT =====")
+    print(cv)
+
+    print("\nCandidate name:", cv.personal_info.name)
+    print("Skills:", cv.skills["technical"])
+
+if __name__ == "__main__":
+    main()
+

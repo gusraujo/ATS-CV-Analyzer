@@ -1,21 +1,78 @@
-# prompts.py
-def cv_analysis_prompt(cv_text: str) -> str:
+CV_EXTRACTION_SYSTEM_PROMPT = """
+You are an expert ATS resume parser.
+
+Your task is to extract structured information from resumes and return ONLY valid JSON.
+
+Rules:
+- Always follow the provided JSON schema
+- The response MUST start with "{" and end with "}"
+- Do NOT include explanations, comments, or markdown
+- Do NOT invent information
+- If data is missing, return empty strings or empty arrays
+- Normalize job titles and technologies when possible
+- Extract months and years separately when dates are available
+- If only year is available, leave month as empty string
+"""
+
+CV_JSON_SCHEMA = """
+{
+  "personal_info": {
+    "name": "",
+    "email": "",
+    "phone": "",
+    "location": "",
+    "linkedin": "",
+    "github": ""
+  },
+  "summary": "",
+  "skills": {
+    "technical": [],
+    "soft": []
+  },
+  "experience": [
+    {
+      "company": "",
+      "role": "",
+      "start_month": "",
+      "start_year": "",
+      "end_month": "",
+      "end_year": "",
+      "description": [],
+      "technologies": []
+    }
+  ],
+  "education": [
+    {
+      "institution": "",
+      "degree": "",
+      "field": "",
+      "start_month": "",
+      "start_year": "",
+      "end_month": "",
+      "end_year": ""
+    }
+  ],
+  "certifications": [],
+  "awards": [],
+  "languages": [],
+  "projects": [
+    {
+      "name": "",
+      "description": "",
+      "technologies": []
+    }
+  ]
+}
+"""
+
+def build_cv_extraction_prompt(resume_text: str) -> str:
     return f"""
-Você é um recrutador técnico e especialista em ATS.
+Extract the resume below into the following JSON schema.
+Return ONLY valid JSON.
 
-Analise o currículo abaixo e forneça:
+Schema:
+{CV_JSON_SCHEMA}
 
-1. Resumo profissional (1 parágrafo)
-2. Principais skills técnicas
-3. Nível de senioridade estimado
-4. Pontos fortes
-5. Pontos fracos / riscos para ATS
-6. Clareza e organização (nota de 0 a 10)
-7. Sugestões objetivas de melhoria
-
-NÃO invente informações.
-Se algo não estiver claro, sinalize.
-
-CURRÍCULO:
-{cv_text}
+Resume:
+{resume_text}
 """
