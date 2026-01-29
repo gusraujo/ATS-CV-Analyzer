@@ -11,7 +11,7 @@ def run_match(cv, job) -> MatchResult:
     # =========================
     # SKILLS
     # =========================
-    cv_technical_skills = cv.skills.get("technical", [])
+    cv_technical_skills = cv.skills.technical
 
     skill_aliases = load_skill_aliases("skill_aliases.txt")
 

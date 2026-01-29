@@ -1,4 +1,4 @@
-from services.cv_renderer import render_cv
+from services.cv_renderer import render_cv_pdf
 from pdf_reader import read_pdf
 from openai_client import extract_cv_to_json
 from validators.cv_validator import validate_cv
@@ -93,12 +93,12 @@ def main():
 
     print("\n🏁 END PIPELINE\n")
     
-    render_cv(
-        cv=cv,
-        output_path="output/cv_rendered.html"
+    render_cv_pdf(
+    cv=cv,
+    output_path="output/cv_rendered.pdf"
     )
 
-    print("📄 Currículo HTML gerado em output/cv_rendered.html")
+    print("📄 Currículo PDF gerado em output/cv_rendered.pdf")
 
 
 if __name__ == "__main__":
