@@ -138,9 +138,13 @@ def main():
     # =========================
     print("\n📄 Generating optimized CV PDF...\n")
 
+    # Gera nome de arquivo a partir do nome do CV
+    candidate_name = cv.personal_info.name.replace(" ", "_")
+    output_file = f"output/CV_{candidate_name}.pdf"
+
     render_cv_pdf(
         cv=optimized_cv,
-        output_path="output/cv_optimized.pdf",
+        output_path=output_file,
         language="pt"
     )
 
