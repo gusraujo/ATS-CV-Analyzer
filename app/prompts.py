@@ -187,9 +187,31 @@ STRICT RULES:
 If information is missing, keep it empty.
 """
 
-def build_cv_rewrite_prompt(cv_json: dict, job_json: dict, match_result: dict) -> str:
+
+def build_cv_rewrite_prompt(
+    cv_json: dict,
+    job_json: dict,
+    match_result: dict,
+    language: str = "pt",  # idioma do CV
+    suggestions: list[str] = None  # novas sugestões
+) -> str:
+    lang_instruction = (
+        "Gere o currículo em português."
+        if language == "pt"
+        else "Generate the resume in English."
+    )
+
+    suggestions_text = ""
+    if suggestions:
+        # Junta todas as sugestões em um bloco de texto
+        suggestions_text = "Additional suggestions to maximize ATS score:\n" + "\n".join(
+            f"- {s}" for s in suggestions
+        )
+
     return f"""
 Rewrite the resume below to better match the job description.
+
+{lang_instruction}
 
 Inputs:
 
@@ -213,6 +235,7 @@ Instructions:
 - Rewrite summary and experience bullets
 - Keep the same JSON structure
 - Return ONLY valid JSON. Do not truncate, do not add markdown. Ensure the JSON is complete.
+{suggestions_text}
 
 Return ONLY the rewritten CV as valid JSON.
 """

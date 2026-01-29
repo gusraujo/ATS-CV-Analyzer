@@ -50,16 +50,21 @@ def extract_cv_to_json(resume_text: str) -> dict:
 def rewrite_cv(
     cv: dict,
     job: dict,
-    match_result: dict
+    match_result: dict,
+    language: str,
+    suggestions: list[str] = None
 ) -> dict:
     """
     Reescreve o CV com base na análise do match, usando o modelo GPT.
+    language: 'pt' = Português, 'en' = Inglês
     """
+
+    prompt = build_cv_rewrite_prompt(cv, job, match_result, language=language, suggestions=suggestions)
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[
             {"role": "system", "content": CV_REWRITE_SYSTEM_PROMPT},
-            {"role": "user", "content": build_cv_rewrite_prompt(cv, job, match_result)}
+            {"role": "user", "content": prompt}
         ],
         temperature=0.3
     )

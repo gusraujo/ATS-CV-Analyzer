@@ -110,7 +110,15 @@ def main():
     optimized_cv_json = rewrite_cv(
         cv=cv.model_dump(),
         job=job.model_dump(),
-        match_result=match_result.model_dump()
+        match_result=match_result.model_dump(),
+        language="pt",
+        suggestions=[
+            "Quantifique resultados nas experiências, ex: 'reduzindo X% de tempo de resposta'",
+            "Especifique e adicione alguns serviços AWS usados, ex: S3, EC2, Lambda",
+            "Deixe claro disponibilidade para trabalho remoto se for objetivo",
+            "Inclua palavras-chave do job description no resumo e nas skills técnicas",
+            "Destaque projetos relevantes relacionados a backend e microservices"
+        ]
     )
 
     optimized_cv = CV(**optimized_cv_json)
@@ -132,7 +140,8 @@ def main():
 
     render_cv_pdf(
         cv=optimized_cv,
-        output_path="output/cv_optimized.pdf"
+        output_path="output/cv_optimized.pdf",
+        language="pt"
     )
 
     print("✅ PDF gerado em output/cv_optimized.pdf")
