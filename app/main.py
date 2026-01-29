@@ -1,7 +1,5 @@
 from models.cv import CV
-
 from services.cv_renderer import render_cv_pdf
-from services.cv_rewrite_service import rewrite_cv
 from services.match_service import run_match
 
 from pdf_reader import read_pdf
