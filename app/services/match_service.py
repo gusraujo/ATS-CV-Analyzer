@@ -1,10 +1,10 @@
-from services.match_engine import (
+from app.services.match_engine import (
     match_skills,
     match_experience,
     match_education
 )
-from services.skill_aliases import load_skill_aliases
-from schemas.match_result import MatchResult
+from app.services.skill_aliases import load_skill_aliases
+from app.schemas.match_result import MatchResult
 
 
 def run_match(cv, job) -> MatchResult:

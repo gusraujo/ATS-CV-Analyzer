@@ -4,7 +4,7 @@ import os
 import json
 from dotenv import load_dotenv
 from openai import OpenAI
-from prompts import (
+from app.prompts import (
     CV_EXTRACTION_SYSTEM_PROMPT,
     CV_REWRITE_SYSTEM_PROMPT,
     build_cv_extraction_prompt,
@@ -46,6 +46,62 @@ def extract_cv_to_json(resume_text: str) -> dict:
             f"Invalid JSON returned by model.\nError: {e}\nOutput:\n{raw_output[:500]}"
         )
 
+def extract_job_to_json(job_description: str) -> dict:
+    response = client.responses.create(
+        model="gpt-4.1-mini",
+        temperature=0,
+        input=[
+            {
+                "role": "system",
+                "content": """
+You are an ATS job description parser.
+
+Extract a structured job description from raw text.
+
+RULES:
+- Return ONLY valid JSON
+- Follow this schema exactly:
+{
+  "title": "",
+  "company": "",
+  "required_skills": [],
+  "nice_to_have_skills": [],
+  "experience_requirements": [],
+  "education_level": "",
+  "keywords": []
+}
+- Do NOT invent information
+"""
+            },
+            {
+                "role": "user",
+                "content": job_description
+            }
+        ]
+    )
+
+    raw_output = response.output_text.strip()
+    raw_output = re.sub(r"^```json|```$", "", raw_output).strip()
+
+    return normalize_job_experience(json.loads(raw_output))
+
+def normalize_job_experience(job_json: dict) -> dict:
+    normalized = []
+
+    for item in job_json.get("experience_requirements", []):
+        if isinstance(item, str):
+            normalized.append({
+                "role": item,
+                "required_years": None
+            })
+        elif isinstance(item, dict):
+            normalized.append({
+                "role": item.get("role") or item.get("description") or "Unknown",
+                "required_years": item.get("required_years")
+            })
+
+    job_json["experience_requirements"] = normalized
+    return job_json
 
 def rewrite_cv(
     cv: dict,

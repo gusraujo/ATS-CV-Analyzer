@@ -1,4 +1,4 @@
-from models.cv import CV
+from app.models.cv import CV
 from pydantic import ValidationError
 
 

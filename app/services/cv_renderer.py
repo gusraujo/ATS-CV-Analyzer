@@ -13,8 +13,6 @@ from reportlab.lib.units import cm
 from reportlab.lib.colors import HexColor
 import os
 
-from models import cv
-
 
 # =========================
 # HELPERS
