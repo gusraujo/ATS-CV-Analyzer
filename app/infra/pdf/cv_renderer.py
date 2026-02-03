@@ -1,3 +1,4 @@
+import re
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT
@@ -22,6 +23,8 @@ def format_date(start_month, start_year, end_month, end_year):
     end = f"{end_month}/{end_year}" if end_month and end_year else "Present"
     return f"{start} - {end}" if start else end
 
+def is_valid_url(value: str) -> bool:
+    return bool(re.match(r"^https?://", value.strip()))
 
 # =========================
 # MAIN RENDER
@@ -80,8 +83,35 @@ def render_cv_pdf(cv, output_path: str, language: str):
     # HEADER
     # =========================
     pi = cv.personal_info
+
     story.append(Paragraph(pi.name, styles["Name"]))
-    header_line = " • ".join(filter(None, [pi.location, pi.email, pi.phone, pi.linkedin, pi.github]))
+
+    header_items = []
+
+    # Location
+    if pi.location:
+        header_items.append(pi.location)
+
+    # Contact
+    if pi.email:
+        header_items.append(pi.email)
+
+    if pi.phone:
+        header_items.append(pi.phone)
+
+    # LinkedIn (somente se for URL)
+    if pi.linkedin and is_valid_url(pi.linkedin):
+        header_items.append(
+            pi.linkedin.replace("https://", "").replace("http://", "")
+        )
+
+    # GitHub (somente se for URL)
+    if pi.github and is_valid_url(pi.github):
+        header_items.append(
+            pi.github.replace("https://", "").replace("http://", "")
+        )
+
+    header_line = " • ".join(header_items)
     story.append(Paragraph(header_line, styles["Small"]))
     story.append(Spacer(1, 6))
 

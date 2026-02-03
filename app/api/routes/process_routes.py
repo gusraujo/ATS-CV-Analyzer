@@ -19,7 +19,8 @@ router = APIRouter(prefix="/process", tags=["Process"])
 async def process_cv(
     file: UploadFile = File(...),
     job: str = Form(...),
-    language: str = "pt"
+    language: str = "en",
+    suggestions: list[str] = Body(default=[])
 ):
     """
     Recebe:
@@ -47,7 +48,8 @@ async def process_cv(
         optimized_cv, match_result = use_case.execute(
             cv=cv,
             job=job_obj,
-            language=language
+            language=language,
+            suggestions=suggestions
         )
 
         candidate_name = optimized_cv.personal_info.name.replace(" ", "_")
