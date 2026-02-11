@@ -12,7 +12,8 @@ def rewrite_cv(
     job: dict,
     match_result: dict,
     language: str,
-    suggestions: list[str]
+    suggestions: list[str],
+    technologies: list[str]
 ) -> dict:
     response = client.responses.create(
         model="gpt-4.1-mini",
@@ -26,7 +27,8 @@ def rewrite_cv(
                     job_json=job,
                     match_result=match_result,
                     language=language,
-                    suggestions=suggestions
+                    suggestions=suggestions,
+                    technologies=technologies
                 )
             }
         ]

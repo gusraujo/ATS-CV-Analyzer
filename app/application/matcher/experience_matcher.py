@@ -1,7 +1,18 @@
 from app.domain.models.cv import CV
 from app.domain.models.job import Job
 from app.domain.models.match import ExperienceMatchDetails
+from datetime import date
 
+def calculate_years(start_year: str, end_year: str | None) -> float:
+    if not start_year:
+        return 0
+
+    try:
+        start = int(start_year)
+        end = int(end_year) if end_year else date.today().year
+        return max(end - start, 0)
+    except ValueError:
+        return 0
 
 def match_experience(cv: CV, job: Job) -> ExperienceMatchDetails:
     matched_roles = []
@@ -13,7 +24,13 @@ def match_experience(cv: CV, job: Job) -> ExperienceMatchDetails:
         for exp in cv.experience:
             if req.role.lower() in exp.role.lower():
                 matched_roles.append(exp.role)
-                total_years += exp.years
+
+                years = calculate_years(
+                    exp.start_year,
+                    exp.end_year
+                )
+
+                total_years += years
 
     if required_years == 0:
         score = 100

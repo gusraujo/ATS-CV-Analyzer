@@ -5,22 +5,57 @@ from app.application.matcher.skill_matcher import match_skills
 from app.application.matcher.experience_matcher import match_experience
 from app.application.matcher.education_matcher import match_education
 from app.application.matcher.scoring import calculate_overall_score
+from app.infra.logging.logger import get_logger
+
+logger = get_logger("match_service")
 
 
 class MatchService:
 
     def execute(self, cv: CV, job: Job) -> MatchResult:
-        skill_result = match_skills(cv, job)        # retorna dict
-        experience_result = match_experience(cv, job)  # retorna objeto com .score
-        education_result = match_education(cv, job)    # retorna objeto com .score
+        logger.info(
+            "MatchService started | candidate=%s | role=%s",
+            cv.personal_info.name,
+            job.role.job_title
+        )
 
+        # Skills
+        skill_result = match_skills(cv, job)
+        logger.info(
+            "Skill match completed | score=%.2f | matched=%d | missing=%d",
+            skill_result["score"],
+            len(skill_result["matched"]),
+            len(skill_result["missing"])
+        )
+
+        # Experience
+        experience_result = match_experience(cv, job)
+        logger.info(
+            "Experience match completed | score=%.2f",
+            experience_result.score
+        )
+
+        # Education
+        education_result = match_education(cv, job)
+        logger.info(
+            "Education match completed | score=%.2f",
+            education_result.score
+        )
+
+        # Overall
         overall = calculate_overall_score(
-            skill_result["score"],       
+            skill_result["score"],
             experience_result.score,
             education_result.score
         )
 
         recommendation = self._recommendation(overall)
+
+        logger.info(
+            "Overall match calculated | score=%.2f | recommendation=%s",
+            overall,
+            recommendation
+        )
 
         return MatchResult(
             overall_score=overall,
@@ -46,9 +81,9 @@ class MatchService:
             return "PARTIAL"
         return "WEAK"
 
-    def _strengths(self, s, e, edu):
+    def _strengths(self, s: dict, e, edu):
         result = []
-        if s.score >= 80:
+        if s["score"] >= 80:
             result.append("Strong skill match")
         if e.score >= 70:
             result.append("Relevant professional experience")
@@ -56,9 +91,9 @@ class MatchService:
             result.append("Education level meets or exceeds requirement")
         return result
 
-    def _gaps(self, s, e, edu):
+    def _gaps(self, s: dict, e, edu):
         result = []
-        if s.missing:
+        if s["missing"]:
             result.append("Missing required skills")
         if e.score < 60:
             result.append("Insufficient experience")

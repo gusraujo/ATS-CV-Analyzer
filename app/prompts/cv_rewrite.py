@@ -36,7 +36,11 @@ def build_cv_rewrite_prompt(
     match_result: dict,
     language: str = "en",
     suggestions: list[str] | None = None,
+    technologies: list[str] | None = None
 ) -> str:
+
+    import json
+
     lang_instruction = (
         "IMPORTANT: The entire output MUST be written in Brazilian Portuguese. "
         "Do NOT use English anywhere in the JSON."
@@ -56,6 +60,13 @@ def build_cv_rewrite_prompt(
             + "\n".join(f"- {s}" for s in suggestions)
         )
 
+    technologies_text = ""
+    if technologies:
+        technologies_text = (
+            "\nMANDATORY TECHNOLOGIES TO ADD TO skills.technical:\n"
+            + "\n".join(f"- {t}" for t in technologies)
+        )
+
     return f"""
 You are an expert ATS resume writer and career coach.
 
@@ -67,7 +78,6 @@ LANGUAGE NORMALIZATION RULES:
 - When the target language is English:
   - Translate job titles, education titles, section names, locations, and month names to English
   - Keep company names, institution names, and certifications EXACTLY as written
-  - Translating is NOT considered inventing or altering factual data
 - When the target language is Portuguese:
   - Translate job titles, education titles, section names, locations, and month names to Portuguese
 - Dates must keep the same timeline, only month names may be translated
@@ -85,51 +95,72 @@ Missing skills: {match_result.get("missing_skills", [])}
 Strengths: {match_result.get("strengths", [])}
 Gaps: {match_result.get("gaps", [])}
 
-GOALS:
+==================================================
+CRITICAL SKILL INJECTION RULE
+==================================================
+
+The following technologies MUST be added to:
+
+skills.technical
+
+{technologies_text}
+
+STRICT RULES FOR THESE TECHNOLOGIES:
+- They MUST appear inside skills.technical
+- They must NOT be added to experience bullets
+- They must NOT imply professional usage
+- If no direct experience exists, add a qualifier such as:
+  - "(basic knowledge)"
+  - "(foundational)"
+  - "(academic exposure)"
+  - "(self-study)"
+- Do NOT remove existing skills
+- Do NOT duplicate skills
+
+==================================================
+GOALS
+==================================================
 - Improve ATS compatibility
 - Increase keyword alignment
 - Highlight relevant experience
 - Preserve factual accuracy
 
-ALLOWED TRANSFORMATIONS:
-- Rephrase summaries and bullet points for clarity and impact
-- Reorder skills based on job relevance
-- Merge or split bullet points if meaning is preserved
-- Improve grammar and professional tone
+==================================================
+ALLOWED TRANSFORMATIONS
+==================================================
+- Rephrase summaries and bullet points for clarity
+- Reorder skills based on relevance
+- Improve professional tone
+- Add the mandatory technologies listed above
 
-FORBIDDEN TRANSFORMATIONS:
-- Adding new skills, tools, certifications, or technologies
+==================================================
+FORBIDDEN TRANSFORMATIONS
+==================================================
 - Inventing experience, metrics, or responsibilities
-- Inferring skills directly from the job description
+- Claiming production usage for injected technologies
 - Changing job titles, employers, or dates
-- Adding new roles or removing existing ones
+- Adding new roles
+- Removing existing roles
 
-RULES FOR MISSING SKILLS:
-A missing skill may ONLY be incorporated if:
-- It is clearly implied by existing responsibilities or tools in the CV
-- It does NOT introduce new technology, scope, or seniority
-- It is expressed as a rewording, not a new claim
-
-Example:
-Original: "Developed REST APIs using Spring Boot"
-Allowed: "Backend development", "API design"
-Forbidden: "Microservices architecture" (unless explicitly stated)
-
-EXPERIENCE BULLET GUIDELINES:
+==================================================
+EXPERIENCE BULLET GUIDELINES
+==================================================
 - Start with a strong action verb
 - Describe WHAT was done and HOW
-- Mention impact ONLY if already present in the original CV
-- Keep each bullet concise (1–2 lines)
-- Avoid vague verbs such as "helped", "assisted", "worked with"
+- Mention impact ONLY if present in original CV
+- Keep bullets concise (1–2 lines)
+- Avoid vague verbs
 
-OUTPUT INSTRUCTIONS:
-- Keep EXACTLY the same JSON structure as the original CV
+==================================================
+OUTPUT INSTRUCTIONS
+==================================================
+- Keep EXACTLY the same JSON structure
 - Do NOT add or remove fields
-- If information is missing, keep it empty
-- First, reason internally about improvements
-- Then output ONLY the final JSON
-- Do NOT include explanations, comments, or markdown
-- Ensure the JSON is complete and valid
+- Return ONLY valid JSON
+- No explanations
+- No markdown
+- Ensure JSON is complete
 
 {suggestions_text}
 """
+
