@@ -5,6 +5,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 env:
   GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
