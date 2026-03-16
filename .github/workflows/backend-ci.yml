@@ -10,7 +10,7 @@ env:
   GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
   GCP_REGION: europe-west1
   SERVICE_NAME: atsbackend-v2
-  IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/atsbackend-v2
+  IMAGE: europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/ats-backend/atsbackend-v2
 
 jobs:
   test:
